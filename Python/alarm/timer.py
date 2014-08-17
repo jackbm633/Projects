@@ -1,6 +1,8 @@
 from threading import Timer
+import time
 import pygame
 import argparse
+import sys
 
 parser = argparse.ArgumentParser(description="A simple timer written in Python")
 parser.add_argument("--seconds", help="Set the time in seconds", nargs="?", type=int)
@@ -14,22 +16,25 @@ pygame.init()
 pygame.mixer.init()
 sound = pygame.mixer.Sound("alarm.ogg")
 
-time = 0
+usertime = 0
 if args.seconds >= 0:
-	time += args.seconds
+	usertime += args.seconds
 	
 if args.milliseconds >= 0:
-	time += (args.milliseconds / 1000)
+	usertime += (args.milliseconds / 1000)
 if args.minutes >= 0:
-	time += (args.minutes * 60)
+	usertime += (args.minutes * 60)
 if args.hours >= 0:
-	time += (args.hours * 3600)
+	usertime += (args.hours * 3600)
+else:
+	print "Exiting: No time input"
+	exit(0)
 
-truehours = time / 3600
-trueminutes = (time - truehours * 3600) / 60
-trueseconds = (time - (truehours * 3600) - (trueminutes * 60)) / 1
+truehours = usertime / 3600
+trueminutes = (usertime - truehours * 3600) / 60
+trueseconds = (usertime - (truehours * 3600) - (trueminutes * 60)) / 1
 
-print "Timer set for {0} hours, {1} minutes, and {2} seconds".format(truehours, trueminutes, trueseconds)
+print "usertimer set for {0} hours, {1} minutes, and {2} seconds".format(truehours, trueminutes, trueseconds)
 
 
 
@@ -67,5 +72,20 @@ def alarmsound():
 				else:
 					sound.play()
 			
-t = Timer(time, alarmsound)
+t = Timer(usertime, alarmsound)
+usertimecopy = usertime
+
 t.start()
+
+for i in range(usertimecopy):
+	time.sleep(1)
+	truehours = usertimecopy / 3600
+	trueminutes = (usertimecopy - truehours * 3600) / 60
+	trueseconds = (usertimecopy - (truehours * 3600) - (trueminutes * 60)) / 1
+
+	timestring = "Time Remaining: {0} hours, {1} minutes, {2} seconds.".format(truehours, trueminutes, trueseconds)
+	sys.stdout.write(str(timestring)+'{0}\r'.format(" " * len(timestring)))
+	sys.stdout.flush()
+	usertimecopy -= 1
+	
+	
