@@ -1,9 +1,11 @@
+# Imports all of the Python modules required for the timer to run.
 from threading import Timer
 import time
 import pygame
 import argparse
 import sys
 
+# Adds the alarm arguments for Argparse (CLI)
 parser = argparse.ArgumentParser(description="A simple timer written in Python")
 parser.add_argument("--seconds", help="Set the time in seconds", nargs="?", type=int)
 parser.add_argument("--milliseconds", help="Set the time in milliseconds", nargs="?", type=int)
@@ -12,10 +14,17 @@ parser.add_argument("--hours", help="Set the time in hours", nargs="?", type=int
 
 args = parser.parse_args()
 
+# Quits the program if invalid input is entered.
+if args.seconds <= 0 and args.milliseconds <= 0 and args.minutes <= 0 and args.hours <= 0:
+	print "Invalid (i.e. negative) input or no time entered. Exiting..."
+	exit(0)
+
+# Initialises PyGame and loads the alarm sound.
 pygame.init()
 pygame.mixer.init()
 sound = pygame.mixer.Sound("alarm.ogg")
 
+# Calculates the total time in seconds.
 usertime = 0
 if args.seconds >= 0:
 	usertime += args.seconds
@@ -26,9 +35,7 @@ if args.minutes >= 0:
 	usertime += (args.minutes * 60)
 if args.hours >= 0:
 	usertime += (args.hours * 3600)
-else:
-	print "Exiting: No time input"
-	exit(0)
+
 
 truehours = usertime / 3600
 trueminutes = (usertime - truehours * 3600) / 60
@@ -71,19 +78,21 @@ def alarmsound():
 					sound_on = False
 				else:
 					sound.play()
-			
+
+# Alarm timer.			
 t = Timer(usertime, alarmsound)
 usertimecopy = usertime
 
 t.start()
 
+# Code for the alarm countdown clock.
 for i in range(usertimecopy):
 	time.sleep(1)
 	truehours = usertimecopy / 3600
 	trueminutes = (usertimecopy - truehours * 3600) / 60
 	trueseconds = (usertimecopy - (truehours * 3600) - (trueminutes * 60)) / 1
 
-	timestring = "Time Remaining: {0} hours, {1} minutes, {2} seconds.".format(truehours, trueminutes, trueseconds)
+	timestring = "{0}h, {1}m and {2}s remaining.".format(truehours, trueminutes, trueseconds)
 	sys.stdout.write(str(timestring)+'{0}\r'.format(" " * len(timestring)))
 	sys.stdout.flush()
 	usertimecopy -= 1
